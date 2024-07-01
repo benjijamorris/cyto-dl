@@ -1,33 +1,23 @@
 ---
 name: publish
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
+
 jobs:
   publish:
-    # only publish when the PR is a version bump PR and the pr is merged to main
-    if: github.event.pull_request.title == 'admin/version-bump' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: release
     permissions:
       id-token: write
-      contents: write # Add this permission to allow pushing the version bump
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
 
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v2
         with:
           python-version: "3.10"
-
-      - name: Configure Git
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
 
       - name: Build package
         run: pdm build
